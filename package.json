@@ -1,0 +1,25 @@
+{
+  "name": "software-factory",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace apps/web",
+    "build": "npm run build --workspace apps/web",
+    "start": "npm run start --workspace apps/web",
+    "typecheck": "npm run typecheck --workspace apps/web",
+    "test:e2e": "playwright test",
+    "dev:api": ".venv/bin/python -m uvicorn factory.main:app --app-dir services/api --host 0.0.0.0 --port 8000",
+    "test:api": ".venv/bin/python -m pytest -c services/api/pytest.ini services/api/tests -q",
+    "test:e2e:bundled": "node scripts/test-browser.mjs",
+    "format": "prettier --write apps/web tests/e2e scripts playwright.config.ts package.json",
+    "format:check": "prettier --check apps/web tests/e2e scripts playwright.config.ts package.json",
+    "lint:api": ".venv/bin/ruff check services/api && .venv/bin/ruff format --check services/api"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@sparticuz/chromium": "153.0.0",
+    "prettier": "^3.9.10"
+  }
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>مساحة المهام</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f5f1;color:#26352e;font-family:Tahoma,Arial,sans-serif;padding:40px 20px}main{max-width:680px;margin:auto}header{margin-bottom:32px}small{color:#65736b}h1{font-size:32px;margin:12px 0}p{line-height:1.8}form{display:flex;gap:10px;background:white;padding:16px;border:1px solid #e1e5df;border-radius:14px}input[type=text]{min-width:0;flex:1;font:inherit;padding:12px;border:1px solid #d5ddd5;border-radius:8px}button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:10px 18px;background:#2c5c44;color:white}button:hover{filter:brightness(.9)}button:focus-visible,input:focus-visible{outline:3px solid #e78a51;outline-offset:3px}ul{list-style:none;padding:0}li{display:flex;align-items:center;gap:12px;background:white;border:1px solid #e1e5df;border-radius:10px;margin:10px 0;padding:14px}li span{flex:1;overflow-wrap:anywhere}li.done span{text-decoration:line-through;color:#8b958e}li button{background:#f6efec;color:#925b43;padding:8px 12px}input[type=checkbox]{width:20px;height:20px;accent-color:#2c5c44}#empty{text-align:center;padding:30px;color:#778178}#storage{font-size:12px;color:#8d6342}footer{margin-top:28px;font-size:12px;color:#7b847e}@media(max-width:420px){form{flex-wrap:wrap}form button{width:100%}}
+</style>
+</head>
+<body><main>
+<header><small>مساحتك لإنجاز أكثر</small><h1>يوم جديد، خطوة جديدة.</h1><p>رتّب أفكارك، أنجز مهامك، واحتفل بالتقدّم الصغير.</p></header>
+<form id="form"><input id="task" type="text" maxlength="200" placeholder="ما الذي تريد إنجازه؟" aria-label="اسم المهمة" required><button type="submit">إضافة مهمة +</button></form>
+<p id="storage" role="status"></p><p id="summary" aria-live="polite"></p><ul id="tasks"></ul><p id="empty">لا توجد مهام بعد. ابدأ بخطوة صغيرة ✨</p>
+<footer>قالب محلي جاهز من Software Factory · لا يرسل بيانات إلى أي خادم.</footer>
+</main><script>
+'use strict';
+const key='sf-taskboard-v1';
+let tasks=[];
+try{const saved=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(saved))tasks=saved.filter(t=>typeof t.id==='string'&&typeof t.text==='string'&&typeof t.done==='boolean').slice(0,500)}catch{document.getElementById('storage').textContent='الحفظ المحلي غير متاح في هذه المعاينة؛ ستبقى المهام حتى إغلاقها فقط.'}
+function save(){try{localStorage.setItem(key,JSON.stringify(tasks))}catch{document.getElementById('storage').textContent='تعذر الحفظ المحلي؛ احتفظ بهذه الصفحة مفتوحة.'}render()}
+function render(){const list=document.getElementById('tasks');list.replaceChildren();for(const t of tasks){const li=document.createElement('li');li.className=t.done?'done':'';const check=document.createElement('input');check.type='checkbox';check.checked=t.done;check.setAttribute('aria-label','إنجاز '+t.text);check.addEventListener('change',()=>{t.done=check.checked;save()});const span=document.createElement('span');span.textContent=t.text;const del=document.createElement('button');del.textContent='حذف';del.setAttribute('aria-label','حذف '+t.text);del.addEventListener('click',()=>{tasks=tasks.filter(item=>item.id!==t.id);save()});li.append(check,span,del);list.append(li)}document.getElementById('empty').hidden=tasks.length>0;document.getElementById('summary').textContent=tasks.length?`${tasks.filter(t=>t.done).length} من ${tasks.length} مهام مكتملة`:''}
+document.getElementById('form').addEventListener('submit',e=>{e.preventDefault();const input=document.getElementById('task');const text=input.value.trim();if(!text||tasks.length>=500)return;tasks.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),text,done:false});input.value='';save();input.focus()});render();
+</script></body></html>
